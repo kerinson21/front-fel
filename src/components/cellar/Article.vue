@@ -57,7 +57,6 @@
                             <v-card-title>
                             <span class="text-h5">{{ formTitle }}</span>
                             </v-card-title>
-
                             <v-card-text>
                             <v-container>
                                 <v-row>
@@ -68,6 +67,9 @@
                                     <v-text-field
                                     v-model="code"
                                     label="Códido"
+                                    type="number"
+                                    class="inputCode"
+                                    required
                                     ></v-text-field>
                                 </v-col>
                                 <v-col
@@ -77,6 +79,20 @@
                                     <v-text-field
                                     v-model="name"
                                     label="Nombre"
+                                    required
+                                    ></v-text-field>
+                                </v-col>
+                                <v-col
+                                    cols="12"
+                                    sm="12"
+                                    md="12">
+                                    <v-text-field
+                                    v-model="sales_price"
+                                    label="Precio Venta"
+                                    type="number"
+                                    class="inputCode"
+                                    prefix="Q."
+                                    required
                                     ></v-text-field>
                                 </v-col>
                                 <v-col
@@ -86,8 +102,18 @@
                                     <v-text-field
                                     v-model="description"
                                     label="Descripción"
-                                    required
                                     ></v-text-field>
+                                </v-col>
+                                <v-col
+                                    cols="12"
+                                    sm="12"
+                                    md="12">
+                                    <v-select
+                                    :items="categories"
+                                    label="Categorías"
+                                    v-model="idcategory"
+                                    dense>
+                                  </v-select>
                                 </v-col>
                                 <v-col
                                     cols="12"
@@ -181,6 +207,16 @@
         </v-flex>
     </v-layout>
 </template>
+<style>
+      .inputCode input[type='number'] {
+          -moz-appearance:textfield;
+        }
+      .inputCode input::-webkit-outer-spin-button,
+      .inputCode input::-webkit-inner-spin-button {
+          -webkit-appearance: none;
+      }
+
+</style>
 <script>
 import axios from 'axios'
 export default {
@@ -200,12 +236,13 @@ export default {
         { text: 'Estado', value: 'condition',sortable: false }
       ],
       articles: [],
+      categories: [],
       editedIndex: -1,
       id: '',
       idcategory: '',
       code: '',
       name: '',
-      sale_price: 0.00,
+      sales_price: 0.00,
       stock: 0,
       description: '',
       valid: 0,
@@ -213,6 +250,7 @@ export default {
   }),
   computed: {
     formTitle () {
+        this.toListCategory();
         return this.editedIndex === -1 ? 'Nuevo artículo' : 'Editando el artículo'
       },
   },
@@ -243,6 +281,18 @@ export default {
         let me = this;
         axios.get('api/article/index').then((response)=>{
             me.articles = response.data;
+        }).catch(function(error){
+          console.log(error);
+        });
+      },
+      toListCategory(){
+        let me = this;
+        var categoriesArray = [];
+        axios.get('api/category/listActive').then((response)=>{
+            categoriesArray = response.data;
+            categoriesArray.map((x)=>{
+              me.categories.push({text:x.name, value:x.id})
+            });
         }).catch(function(error){
           console.log(error);
         });
